@@ -1,1 +1,112 @@
+import pandas as pd
+import scipy.optimize as optimize
+from IPython.display import display
 
+PVV=int(input('現值'))
+par=int(input('面額'))
+yy=int(input('年數'))
+tt=float(input('Bond Coupon Rate(%)'))
+fre=int(input('每年計息幾次'))
+
+tr = [] 
+yr = [] 
+for i in range(1,100):
+  ttm =i
+  price = PVV
+          
+          
+            
+  def YTM_1(PV, PARVALUE, ttm, coup, freq, guess=0.01):
+    freq = float(freq)
+    coupon = coup/100.*PARVALUE/freq
+    ytm_func = lambda y: coupon*(1-(1+(y/freq))**(-freq*ttm))/(y/freq)  + PARVALUE/(1+y/freq)**(freq*ttm) - PV
+                  
+    return optimize.newton(ytm_func, guess)
+          
+  if __name__ == "__main__":
+    ytm = YTM_1(PVV, par, i, tt, fre)
+    YTM_F=round(ytm,6)
+    tr.append(ttm)
+    yr.append(YTM_F)
+              
+YTM_FF=yr[yy-1]/fre
+YTM_FFF = "YTM= %f" %(YTM_FF)
+print (YTM_FFF)
+
+
+if PVV>par:
+  print('現值比面額大，無法計算Spot rates 和Forward Rates')
+else:              
+      s = [] 
+      for w in range(0, 6): 
+          value = round((price/par)**(-1/(w+1)) - 1,6)
+          s.append(value)  
+       
+      F0 = []  
+      F1 = []
+      F2 = []
+      F3 = []
+      F4 = []
+      F5 = []
+       
+      for i in range(0, 6):
+          for j in range(0, 6):
+              if i==0:
+                if j-i<=0:
+                  f=0
+                  F0.append(f)
+                else: 
+                  f=round(((1+s[j])**j/(1+s[i])**i)**(1/(j-i))-1,6)
+                  F0.append(f)
+              if i==1:
+                if j-i<=0:
+                  f=0
+                  F1.append(f)
+                else: 
+                  f=round(((1+s[j])**j/(1+s[i])**i)**(1/(j-i))-1,6)
+                  F1.append(f)
+              if i==2:
+                if j-i<=0:
+                  f=0
+                  F2.append(f)
+                else: 
+                  f=round(((1+s[j])**j/(1+s[i])**i)**(1/(j-i))-1,6)
+                  F2.append(f)
+              if i==3:
+                if j-i<=0:
+                  f=0
+                  F3.append(f)
+                else: 
+                  f=round(((1+s[j])**j/(1+s[i])**i)**(1/(j-i))-1,6)
+                  F3.append(f)
+              if i==4:
+                if j-i<=0:
+                  f=0
+                  F4.append(f)
+                else: 
+                  f=round(((1+s[j])**j/(1+s[i])**i)**(1/(j-i))-1,6)
+                  F4.append(f)
+              if i==5:
+                if j-i<=0:
+                  f=0
+                  F5.append(f)
+                else: 
+                  f=round(((1+s[j])**j/(1+s[i])**i)**(1/(j-i))-1,6)
+                  F5.append(f)  
+                  
+             
+   
+      
+      
+      row=['0','1','2','3','4','5']
+      col=['0','1','2','3','4','5']
+      col_1=['1年','2年','3年','4年','5年','6年']
+      S=['Spot Rates']
+      SI=s
+      FI=[F0,F1,F2,F3,F4,F5]
+      df= pd.DataFrame(SI, index = col_1 , columns = S)
+      display(df)
+      print('Forward Rates') 
+      df2 = pd.DataFrame(FI, index = row, columns = col)
+      display(df2)
+    
