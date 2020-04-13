@@ -1,1 +1,72 @@
+import copy
+import math
+import pandas as pd
 
+StockPrice=int(input('Stock Price ?'))
+StrikePrice=int(input('Strike Price ?'))
+RIR=float(input('continuously compounded riskless rate(%) ?'))*0.01
+TP=int(input('periods ?'))
+U=float(input('漲價比值'))
+D=float(input('跌價比值'))
+
+R=round(math.exp(RIR),5)
+p=(R-D)/(U-D)
+CALL=[]
+for j in range(0,TP+1):
+  CALL_s=[0]*(j+1)
+  CALL.append(CALL_s)  
+  for i in range(0,j+1):
+    CALL[j][i]=StockPrice*U**(j-i)*D**(i)
+
+PV_s=CALL[-1]
+PV_C= copy.deepcopy(PV_s)
+PV_P= copy.deepcopy(PV_s)
+
+roww=[0]*(TP+1)
+for x in range(0,TP+1):
+  roww[x] = str('第'+str(x)+'期')
+  
+
+print('Binonial process for the stock price:')
+df = pd.DataFrame(CALL,index=roww)
+print (df.where(df.notnull(),'-'))
+
+for i in range(0,len(PV_C)):
+  PV_C[i]=max(PV_C[i]-StrikePrice,0)
+PV_l=[]
+PV=[]
+for i in range(1,TP+1):
+  PV_l=[0]*i
+  PV.append(PV_l)
+PV.insert(len(PV_C), PV_C)
+for i in range(1,TP+1):
+  for j in range(0,TP-i+1):
+    PV[TP-i][j]=(p*PV[TP-i+1][j]+(1-p)*PV[TP-i+1][j+1])/R
+
+print('CALL VALUE:')     
+CP=round(PV[0][0] ,3) 
+print(CP) 
+
+print('Binonial process for the call price:') 
+
+df1 = pd.DataFrame(PV,index=roww)
+print (df1.where(df1.notnull(),'-'))
+
+PVP=[]
+for i in range(0,len(PV_P)):
+  PV_P[i]=max(StrikePrice-PV_P[i],0)
+for i in range(1,TP+1):
+  PV_l=[0]*i
+  PVP.append(PV_l)
+PVP.insert(len(PV_P), PV_P)
+for i in range(1,TP+1):
+  for j in range(0,TP-i+1):
+    PVP[TP-i][j]=(p*PVP[TP-i+1][j]+(1-p)*PVP[TP-i+1][j+1])/R
+
+print('PUT VALUE:')     
+PP=round(PVP[0][0] ,3) 
+print(PP) 
+
+print('Binonial process for the put price:') 
+df2 = pd.DataFrame(PVP,index=roww)
+print (df2.where(df2.notnull(),'-'))
