@@ -1,0 +1,47 @@
+import math
+from scipy import stats
+
+s=[]
+
+S=int(input('股票價格？'))
+SD=float(input('變動幅度?'))
+Dividends=int(input('股利金額（一次）？'))
+periods=int(input('一年發放幾次股利？'))
+if periods==1:
+  print('股利要在幾月發放?') 
+  st=int(input())
+  s.append(st)
+else:
+  for i in range (1,periods+1):
+    print('第 %d 次股利要在幾月發放?'%(i)) 
+    st=int(input())
+    s.append(st)
+    
+r=int(input('報酬率(%)?'))*0.01
+exercise=int(input('履約價?'))
+Dtp=int(input('想知道在哪一個月的價格？'))
+
+D=0
+for i in range (0,periods):   
+  D=D+Dividends*math.exp(-r*(s[i]/12))
+
+S_hat=S-D
+
+d1=round((math.log(S_hat/exercise)+(r+0.5*SD**2)*(Dtp/12))/\
+(SD*(Dtp/12)**0.5),3)
+d2=round(d1-SD*(Dtp/12)**0.5,3)
+
+Npd2=round(stats.norm.cdf(-d2,0,1),5)
+Npd1=round(stats.norm.cdf(-d1,0,1),5)
+
+Put=round(exercise*math.exp(-r*(Dtp/12))*Npd2-\
+S_hat*Npd1,4)
+
+Ncd1=round(stats.norm.cdf(d1,0,1),5)
+Ncd2=round(stats.norm.cdf(d2,0,1),5)
+
+Call=round(S_hat*Ncd1-exercise*math.exp(-r*(Dtp/12))*Ncd2,4)
+print('Put price=')
+print(Put)
+print('Call price=')
+print(Call)
